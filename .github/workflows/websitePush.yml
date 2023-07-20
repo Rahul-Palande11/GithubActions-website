@@ -23,7 +23,7 @@ jobs:
           zip -r FrontEnd.zip ./*
           mv FrontEnd.zip ../frontEnd.zip
 
-      - name: Upload Artifacts
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: frontEnd-zip
