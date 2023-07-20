@@ -1,0 +1,17 @@
+name: Pushing website on S3
+on: 
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Zipping
+        run: tar -czvf FrontEnd.tar.gz ../FrontEnd
+  
+
+
+  
