@@ -32,4 +32,4 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 cp FrontEnd.zip s3://rahul-bucket-1996/FrontEnd.zip  # Replace 'your-bucket-name' with your actual S3 bucket name
+          aws s3 cp FrontEnd.zip s3://rahul-bucket-1996/FrontEnd-zip.zip  # Replace 'your-bucket-name' with your actual S3 bucket name
