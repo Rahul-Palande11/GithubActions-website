@@ -18,7 +18,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frontEnd-zip
-          path: ../frontEnd.zip    
+          path: | 
+            cd ..
+            /frontEnd.zip    
 
 
   
