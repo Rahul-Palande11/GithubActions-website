@@ -1,5 +1,5 @@
 name: Pushing website on S3
-on: 
+on:
   push:
     branches:
       - main
@@ -9,18 +9,15 @@ jobs:
     steps:
       - name: Get Code
         uses: actions/checkout@v3
+
       - name: Zipping
         run: |
           cd FrontEnd  
           zip -r FrontEnd.zip ./*
-          mv FrontEnd.zip ../FrontEnd.zip
+          mv FrontEnd.zip ../frontEnd.zip
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: frontEnd-zip
-          path: | 
-            cd ..
-            /frontEnd.zip    
-
-
-  
+          path: frontEnd.zip  # Corrected the path to point to the zip file directly
