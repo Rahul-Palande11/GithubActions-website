@@ -40,7 +40,7 @@ jobs:
         id: configure-credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ReadonlyS3AccessRole
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/s3_full_access
           aws-region: ap-south-1
 
 
