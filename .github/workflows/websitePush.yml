@@ -1,8 +1,10 @@
 name: Pushing website on S3
+
 on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,6 +32,11 @@ jobs:
           echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $HOME/.aws/credentials
           aws configure set default.region ap-south-1  # Replace with your preferred AWS region
 
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frontEnd-zip
+
       - name: Upload to S3
         run: |
-          aws s3 cp frontEnd-zip s3://rahul-bucket-1996/frontEnd-zip.zip  # Replace 'your-bucket-name' with your actual S3 bucket name
+          aws s3 cp frontEnd.zip s3://rahul-bucket-1996/frontEnd-zip.zip  # Replace 'rahul-bucket-1996' with your actual S3 bucket name
