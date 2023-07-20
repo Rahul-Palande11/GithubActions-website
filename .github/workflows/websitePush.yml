@@ -5,10 +5,10 @@ on:
     branches:
       - main
 
-permissions:
-  id-token: write
-  contents: read
-  actions: read
+# permissions:
+#   id-token: write
+#   contents: read
+#   actions: read
   
 jobs:
   deploy:
@@ -40,7 +40,7 @@ jobs:
         id: configure-credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.ReadonlyS3AccessRole }}:role/ReadonlyS3AccessRole
+          role-to-assume: arn:aws:iam::${{ secrets.READONLYS3ACCESSROLE }}:role/ReadonlyS3AccessRole
           aws-region: ap-south-1
 
       - name: Download Artifact
