@@ -12,7 +12,8 @@ jobs:
       - name: Zipping
         run: |
           cd FrontEnd  
-          zip -r Frontend.zip ./*
+          zip -r FrontEnd.zip ./*
+          mv FrontEnd.zip ../FrontEnd.zip
           
 
 
