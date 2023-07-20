@@ -40,8 +40,9 @@ jobs:
         id: configure-credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/s3_full_access
+          role-to-assume: arn:aws:iam::528267078178:role/s3_full_access
           aws-region: ap-south-1
+          audience: sts.amazonaws.com
 
 
       - name: Download Artifact
