@@ -37,6 +37,7 @@ jobs:
         with:
           name: frontEnd-zip
 
-      - name: Upload to S3
+      - name: Unzip and Upload to S3
         run: |
-          aws s3 cp frontEnd.zip s3://rahul-bucket-1996/frontEnd-zip.zip  # Replace 'rahul-bucket-1996' with your actual S3 bucket name
+          unzip -q frontEnd.zip -d extracted_content
+          aws s3 sync extracted_content s3://rahul-bucket-1996/
