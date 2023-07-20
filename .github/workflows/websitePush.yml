@@ -15,10 +15,10 @@ jobs:
           zip -r FrontEnd.zip ./*
           mv FrontEnd.zip ../FrontEnd.zip
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: frontEnd-zip
-          path: frontEnd.zip    
+          path: ../frontEnd.zip    
 
 
   
