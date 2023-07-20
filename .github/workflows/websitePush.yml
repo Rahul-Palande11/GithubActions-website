@@ -20,4 +20,15 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frontEnd-zip
-          path: frontEnd.zip  # Corrected the path to point to the zip file directly
+          path: frontEnd.zip  
+
+      - name: Configure AWS Credentials
+        run: |
+          echo "[default]" >> $HOME/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $HOME/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $HOME/.aws/credentials
+          aws configure set default.region ap-south-1  # Replace with your preferred AWS region
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp FrontEnd.zip s3://rahul-bucket-1996/FrontEnd.zip  # Replace 'your-bucket-name' with your actual S3 bucket name
