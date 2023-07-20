@@ -1,6 +1,6 @@
 name: Pushing website on S3
 on: 
-  workflow_dispatch:
+  push:
     branches:
       - main
 jobs:
