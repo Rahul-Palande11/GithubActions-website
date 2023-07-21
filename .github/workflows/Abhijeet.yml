@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Assume Role
-      uses: ../
+      uses: actions/checkout@main
       env:
         ROLE_ARN: arn:aws:iam::528267078178:role/s3_Administration
         ROLE_SESSION_NAME: testing
