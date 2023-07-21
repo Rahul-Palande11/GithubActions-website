@@ -5,9 +5,9 @@ jobs:
     name: Assume Role
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v3
     - name: Assume Role
-      uses: ./
+      uses: ../
       env:
         ROLE_ARN: arn:aws:iam::528267078178:role/s3_Administration
         ROLE_SESSION_NAME: testing
