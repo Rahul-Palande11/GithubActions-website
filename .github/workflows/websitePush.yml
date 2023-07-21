@@ -5,10 +5,10 @@ on:
     branches:
       - main
 
-# permissions:
-#   id-token: write
-#   contents: read
-#   actions: read
+permissions:
+  id-token: write
+  # contents: read
+  # actions: read
   
 jobs:
   deploy:
