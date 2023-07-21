@@ -1,0 +1,20 @@
+on: push
+name: assume-role
+jobs:
+  assume-role:
+    name: Assume Role
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Assume Role
+      uses: ./
+      env:
+        ROLE_ARN: arn:aws:iam::528267078178:role/s3_Administration
+        ROLE_SESSION_NAME: testing
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # Optional: Defaults to 3600
+        DURATION_SECONDS: 900
+    - name: Identity Check
+      run: |
+        aws sts get-caller-identity
