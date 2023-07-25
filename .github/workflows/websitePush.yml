@@ -11,6 +11,11 @@ permissions:
   # actions: read
   
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    stepos:
+      - name: Get Code
+        uses: Rahul-Palande11/GithubActions-website/main.tf@main
   deploy:
     runs-on: ubuntu-latest
     steps:
@@ -53,8 +58,8 @@ jobs:
       #     role-to-assume: arn:aws:iam::528267078178:role/gitHub-Actions-Role
       #     aws-region: ap-south-1
       - name: Configure AWS Credentials
-        #uses: aws-actions/configure-aws-credentials@v2
-        uses: Rahul-Palande11/GithubActions-website/main.tf@main
+        uses: aws-actions/configure-aws-credentials@v2
+        # uses: Rahul-Palande11/GithubActions-website/main.tf@main
         with:
           role-to-assume: arn:aws:iam::528267078178:role/gitHub-Actions-Role
           aws-region: ap-south-1
