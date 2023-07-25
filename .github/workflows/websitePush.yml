@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    stepos:
+    steps:
       - name: Get Code
         uses: Rahul-Palande11/GithubActions-website/main.tf@main
   deploy:
