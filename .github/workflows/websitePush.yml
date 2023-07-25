@@ -16,7 +16,14 @@ jobs:
     steps:
       - name: Get Code
         uses: Rahul-Palande11/GithubActions-website/main.tf@main
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve  
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
