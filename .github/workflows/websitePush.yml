@@ -69,4 +69,4 @@ jobs:
       - name: Unzip and Upload to S3
         run: |
           unzip -q frontEnd.zip -d extracted_content
-          aws s3 sync extracted_content s3://rahul-bucket-1996/
+          aws s3 sync extracted_content s3://my-static-website-1996/

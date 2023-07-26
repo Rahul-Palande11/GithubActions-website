@@ -96,6 +96,15 @@ resource "aws_iam_policy_attachment" "test_role_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
+resource "aws_s3_bucket" "my-bucket" {
+  bucket = "my-static-website-1996"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
 
  # policy = jsonencode({
   #   "Version": "2012-10-17",
