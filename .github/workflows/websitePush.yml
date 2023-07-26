@@ -56,7 +56,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         # uses: Rahul-Palande11/GithubActions-website/main.tf@main
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gitHub-Actions-Role
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHub_role
           aws-region: ap-south-1
           # After changing 26th time
 

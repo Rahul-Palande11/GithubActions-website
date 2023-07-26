@@ -12,13 +12,6 @@ resource "aws_iam_openid_connect_provider" "iam_oidc_connect_provider_data" {
  url = local.github_token_url
  client_id_list = ["sts.amazonaws.com"]
  thumbprint_list = [data.tls_certificate.example.certificates[0].sha1_fingerprint]
-
-#  tags = merge(
-#   local.tags,
-#   {
-#    name = "github-actions-provider"
-#   }
-#  )
 }
 #1
 
@@ -27,50 +20,94 @@ resource "aws_iam_openid_connect_provider" "iam_oidc_connect_provider_data" {
 # }
 # resource "aws_iam_role" "test_role" {
 #   name = "GitHub_role"
-#   #id = data.aws_iam_role.example.id
 
-#   assume_role_policy = <<EOF
-# {
+#   assume_role_policy = jsonencode({
 #     "Version": "2012-10-17",
 #     "Statement": [
-#         {
-#             "Effect": "Allow",
-#             "Principal": {
-#                 "Federated": "arn:aws:iam::528267078178:oidc-provider/token.actions.githubusercontent.com"
-#             },
-#             "Action": "sts:AssumeRoleWithWebIdentity",
-#             "Condition": {
-#                 "StringEquals": {
-#                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-#                     "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
-#                 }
-#             }
+#       {
+#         "Effect": "Allow",
+#         "Principal": {
+#           "Federated": "arn:aws:iam::528267078178:oidc-provider/token.actions.githubusercontent.com"
+#         },
+#         "Action": "sts:AssumeRoleWithWebIdentity",
+#         "Condition": {
+#           "StringEquals": {
+#             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+#             "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
+#           }
 #         }
+#       },
+#       {
+#         "Effect": "Allow",
+#         "Action": [
+#           "s3:*",
+#           "s3-object-lambda:*"
+#         ],
+#         "Resource": "*"
+#       }
 #     ]
-
-# }
-# EOF
+#   })
 
 #   tags = {
-#     tag-key = "GitHub"
+#     "tag-key" = "GitHub"
 #   }
 # }
 
-# resource "aws_iam_role_policy_attachment" "test_role_attachment_2" {
-#   policy_name = "MyInlinePolicy"   # Name for the inline policy
-#   role        = aws_iam_role.test_role.name
+resource "aws_iam_role" "test_role" {
+  name = "GitHub_role"
 
-#   policy = jsonencode({
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Effect": "Allow",
-#             "Action": [
-#                 "s3:*",
-#                 "s3-object-lambda:*"
-#             ],
-#             "Resource": "*"
-#         }
-#     ]
-#   })
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::528267078178:oidc-provider/token.actions.githubusercontent.com"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+            "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    "tag-key" = "GitHub"
+  }
+}
+#528267078178
+# data "aws_iam_policy" "my-policy" {
+#   name = "AmazonS3FullAccess"
 # }
+
+# resource "aws_iam_role_policy" "test_role_policy" {
+#   name   = "AWSs3FullAccess"
+#   role   = aws_iam_role.test_role.id
+#  policy  = data.aws_iam_policy.my-policy
+ 
+# }
+resource "aws_iam_policy_attachment" "test_role_attachment" {
+  name       = "AWSs3FullAccessAttachment"
+  roles      = [aws_iam_role.test_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+
+ # policy = jsonencode({
+  #   "Version": "2012-10-17",
+  #   "Statement": [
+  #     {
+  #       "Effect": "Allow",
+  #       "Action": [
+  #         "s3:*",
+  #         "s3-object-lambda:*"
+  #       ],
+  #       "Resource": "*"
+  #     }
+  #   ]
+  # })
+
