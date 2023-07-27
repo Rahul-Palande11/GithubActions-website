@@ -90,10 +90,13 @@ resource "aws_iam_role" "test_role" {
 #  policy  = data.aws_iam_policy.my-policy
  
 # }
+data "aws_iam_policy" "my-policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
 resource "aws_iam_policy_attachment" "test_role_attachment" {
   name       = "AWSs3FullAccessAttachment"
   roles      = [aws_iam_role.test_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  policy_arn = data.aws_iam_policy.my-policy.arn
 }
 
 resource "aws_s3_bucket" "my-bucket" {
