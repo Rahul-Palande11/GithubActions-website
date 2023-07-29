@@ -114,8 +114,6 @@ resource "aws_iam_role_policy" "test_policy" {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "S3Permissions",
-            "Effect": "Allow",
             "Action": [
                 "s3:GetObject",
                 "s3:PutObject",
@@ -123,7 +121,9 @@ resource "aws_iam_role_policy" "test_policy" {
                 "s3:ListBucket",
                 "s3:ListBucketVersions"
             ],
-            "Resource": "arn:aws:s3:::my-static-website-1996/*"
+            "Effect": "Allow",
+            "Resource": "arn:aws:s3:::my-static-website-1996/*",
+            "Sid": "S3Permissions"
         },
         {
             "Sid": "ECSPermissions",
