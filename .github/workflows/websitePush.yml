@@ -17,17 +17,17 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      - name: Zipping
-        run: |
-          cd FrontEnd  
-          zip -r FrontEnd.zip ./*
-          mv FrontEnd.zip ../frontEnd.zip
+      # - name: Zipping
+      #   run: |
+      #     cd FrontEnd  
+      #     zip -r FrontEnd.zip ./*
+      #     mv FrontEnd.zip ../frontEnd.zip
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: frontEnd-zip
-          path: frontEnd.zip  
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: frontEnd-zip
+      #     path: frontEnd.zip  
 
       # - name: Configure AWS Credentials
       #   run: |
@@ -54,19 +54,19 @@ jobs:
       #     aws-region: ap-south-1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
-        # uses: Rahul-Palande11/GithubActions-website/main.tf@main
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHub_role
           aws-region: ap-south-1
           # After changing 29th time
 
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: frontEnd-zip
+      # - name: Download Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: frontEnd-zip
 
       - name: Unzip and Upload to S3
-        run: |
-          unzip -q frontEnd.zip -d extracted_content
-          aws s3 sync extracted_content s3://my-static-website-1996/
+        run: aws s3 sync FrontEnd s3://my-static-website-1996/
+        # run: |
+        #   unzip -q frontEnd.zip -d extracted_content
+        #   aws s3 sync extracted_content s3://my-static-website-1996/
