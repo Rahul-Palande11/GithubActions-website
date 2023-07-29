@@ -7,14 +7,15 @@ data "tls_certificate" "example" {
 }
 
 
-
+# To give existing policies
 resource "aws_iam_openid_connect_provider" "iam_oidc_connect_provider_data" {
  url = local.github_token_url
  client_id_list = ["sts.amazonaws.com"]
  thumbprint_list = [data.tls_certificate.example.certificates[0].sha1_fingerprint]
+ 
 }
 #1
-
+# If want to create manual policy
 # data "aws_iam_role" "example" {
 #   name = "s3_full"
 # }
@@ -53,6 +54,7 @@ resource "aws_iam_openid_connect_provider" "iam_oidc_connect_provider_data" {
 #   }
 # }
 
+# IAM role with Trust relationship
 resource "aws_iam_role" "test_role" {
   name = "GitHub_role"
 
@@ -79,7 +81,7 @@ resource "aws_iam_role" "test_role" {
     "tag-key" = "GitHub"
   }
 }
-#528267078178
+
 # data "aws_iam_policy" "my-policy" {
 #   name = "AmazonS3FullAccess"
 # }
@@ -90,13 +92,64 @@ resource "aws_iam_role" "test_role" {
 #  policy  = data.aws_iam_policy.my-policy
  
 # }
-data "aws_iam_policy" "my-policy" {
-  arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+# data source using arn
+# data "aws_iam_policy" "my-policy" {
+#   arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+# }
+
+# resource "aws_iam_policy_attachment" "test_role_attachment" {
+#   name       = "AWSs3FullAccessAttachment"
+#   roles      = [aws_iam_role.test_role.name]
+#   policy_arn = data.aws_iam_policy.my-policy.arn
+# }
+
+resource "aws_iam_role_policy" "test_policy" {
+  name = "test_policy"
+  role = aws_iam_role.test_role.id
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "S3Permissions",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::my-static-website-1996/*"
+        },
+        {
+            "Sid": "ECSPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "ecs:RunTask",
+                "ecs:StopTask"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "ECRPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:CreateRepository",
+                "ecr:DeleteRepository",
+                "ecr:PutImage"
+            ],
+            "Resource": "*"
+        }
+    ]
 }
-resource "aws_iam_policy_attachment" "test_role_attachment" {
-  name       = "AWSs3FullAccessAttachment"
-  roles      = [aws_iam_role.test_role.name]
-  policy_arn = data.aws_iam_policy.my-policy.arn
+)
 }
 
 
@@ -112,6 +165,7 @@ resource "aws_s3_bucket" "my-bucket" {
   }
 }
 
+# CloudFront
 resource "aws_cloudfront_distribution" "my-cloudfront-distribution" {
   origin {
     domain_name = aws_s3_bucket.my-bucket.bucket_regional_domain_name
