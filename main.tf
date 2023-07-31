@@ -113,18 +113,36 @@ resource "aws_iam_role_policy" "test_policy" {
   policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
+        # {
+        #     "Action": [
+        #         "s3:GetObject",
+        #         "s3:PutObject",
+        #         "s3:DeleteObject",
+        #         "s3:ListBucket",
+        #         "s3:ListBucketVersions"
+        #     ],
+        #     "Effect": "Allow",
+        #     "Resource": "arn:aws:s3:::my-static-website-1996/*",
+        #     "Sid": "S3Permissions"
+        # },
         {
-            "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject",
-                "s3:ListBucket",
-                "s3:ListBucketVersions"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:s3:::my-static-website-1996/*",
-            "Sid": "S3Permissions"
-        },
+          "Effect": "Allow",
+          "Action": [
+              "s3:ListBucket"
+          ],
+          "Resource": [
+              "arn:aws:s3:::my-static-website-1996"
+          ]
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "s3:GetObject"
+          ],
+          "Resource": [
+              "arn:aws:s3:::my-static-website-1996/*"
+          ]
+      },
         {
             "Sid": "ECSPermissions",
             "Effect": "Allow",
