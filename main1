@@ -1,267 +1,72 @@
-locals {
-  github_token_url="https://token.actions.githubusercontent.com"
-}
+name: Pushing website on S3
 
-data "tls_certificate" "example" {
- url = "https://token.actions.githubusercontent.com"
-}
+on:
+  push:
+    branches:
+      - main
 
+permissions:
+  id-token: write
+  contents: read
+  # actions: read
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
 
-# To give existing policies
-resource "aws_iam_openid_connect_provider" "iam_oidc_connect_provider_data" {
- url = local.github_token_url
- client_id_list = ["sts.amazonaws.com"]
- thumbprint_list = [data.tls_certificate.example.certificates[0].sha1_fingerprint]
- 
-}
-#1
-# If want to create manual policy
-# data "aws_iam_role" "example" {
-#   name = "s3_full"
-# }
-# resource "aws_iam_role" "test_role" {
-#   name = "GitHub_role"
+      # - name: Zipping
+      #   run: |
+      #     cd FrontEnd  
+      #     zip -r FrontEnd.zip ./*
+      #     mv FrontEnd.zip ../frontEnd.zip
 
-#   assume_role_policy = jsonencode({
-#     "Version": "2012-10-17",
-#     "Statement": [
-#       {
-#         "Effect": "Allow",
-#         "Principal": {
-#           "Federated": "arn:aws:iam::528267078178:oidc-provider/token.actions.githubusercontent.com"
-#         },
-#         "Action": "sts:AssumeRoleWithWebIdentity",
-#         "Condition": {
-#           "StringEquals": {
-#             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-#             "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
-#           }
-#         }
-#       },
-#       {
-#         "Effect": "Allow",
-#         "Action": [
-#           "s3:*",
-#           "s3-object-lambda:*"
-#         ],
-#         "Resource": "*"
-#       }
-#     ]
-#   })
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: frontEnd-zip
+      #     path: frontEnd.zip  
 
-#   tags = {
-#     "tag-key" = "GitHub"
-#   }
-# }
-
-# IAM role with Trust relationship
-resource "aws_iam_role" "test_role" {
-  name = "GitHub_role"
-
-  assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "Federated": "arn:aws:iam::528267078178:oidc-provider/token.actions.githubusercontent.com"
-        },
-        "Action": "sts:AssumeRoleWithWebIdentity",
-        "Condition": {
-          "StringEquals": {
-            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
-          }
-        }
-      }
-    ]
-  })
-
-  tags = {
-    "tag-key" = "GitHub"
-  }
-}
-
-# data "aws_iam_policy" "my-policy" {
-#   name = "AmazonS3FullAccess"
-# }
-
-# resource "aws_iam_role_policy" "test_role_policy" {
-#   name   = "AWSs3FullAccess"
-#   role   = aws_iam_role.test_role.id
-#  policy  = data.aws_iam_policy.my-policy
- 
-# }
-
-# data source using arn
-# data "aws_iam_policy" "my-policy" {
-#   arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-# }
-
-# resource "aws_iam_policy_attachment" "test_role_attachment" {
-#   name       = "AWSs3FullAccessAttachment"
-#   roles      = [aws_iam_role.test_role.name]
-#   policy_arn = data.aws_iam_policy.my-policy.arn
-# }
-
-resource "aws_iam_role_policy" "test_policy" {
-  name = "test_policy"
-  role = aws_iam_role.test_role.id
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        # {
-        #     "Action": [
-        #         "s3:GetObject",
-        #         "s3:PutObject",
-        #         "s3:DeleteObject",
-        #         "s3:ListBucket",
-        #         "s3:ListBucketVersions"
-        #     ],
-        #     "Effect": "Allow",
-        #     "Resource": "arn:aws:s3:::my-static-website-1996/*",
-        #     "Sid": "S3Permissions"
-        # },
-      #   {
-      #     "Effect": "Allow",
-      #     "Action": [
-      #         "s3:ListBucket"
-      #     ],
-      #     "Resource": [
-      #         "arn:aws:s3:::my-static-website-1996"
-      #     ]
-      # },
-      {
-            "Sid": "AllowListBucket",
-            "Effect": "Allow",
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::my-static-website-1996"
-        },
-        {
-            "Sid": "AllowGetObject",
-            "Effect": "Allow",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::my-static-website-1996/*"
-        },
-        {
-            "Sid": "AllowPutObject",
-            "Effect": "Allow",
-            "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::my-static-website-1996/*"
-        },
-        {
-            "Sid": "ECSPermissions",
-            "Effect": "Allow",
-            "Action": [
-                "ecs:RunTask",
-                "ecs:StopTask"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "ECRPermissions",
-            "Effect": "Allow",
-            "Action": [
-                "ecr:GetAuthorizationToken",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:GetRepositoryPolicy",
-                "ecr:DescribeRepositories",
-                "ecr:CreateRepository",
-                "ecr:DeleteRepository",
-                "ecr:PutImage"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-)
-}
+      # - name: Configure AWS Credentials
+      #   run: |
+      #     mkdir -p $HOME/.aws
+      #     echo "[default]" >> $HOME/.aws/credentials
+      #     echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $HOME/.aws/credentials
+      #     echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $HOME/.aws/credentials
+      #     aws configure set default.region ap-south-1  
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     role-to-assume: arn:aws:iam::528267078178:role/s3_full
+      #     aws-region: ap-south-1
+      #     audience: sts.amazonaws.com
+      # - name: Assume IAM Role
+      #   # id: assume-role
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     role-to-assume: arn:aws:iam::528267078178:role/gitHub-Actions-Role
+      #     aws-region: ap-south-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHub_role
+          aws-region: ap-south-1
+          # After changing 33th time
 
 
+      # - name: Download Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: frontEnd-zip
 
-
-# S3 Bucket
-resource "aws_s3_bucket" "my-bucket" {
-  bucket = "my-static-website-1996"
-
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
-}
-
-# CloudFront
-resource "aws_cloudfront_distribution" "my-cloudfront-distribution" {
-  origin {
-    domain_name = aws_s3_bucket.my-bucket.bucket_regional_domain_name
-    origin_id   = "my-s3-origin"
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.my-oai.cloudfront_access_identity_path
-    }
-  }
-
-  enabled             = true
-  default_root_object = "simpleWebsite.html"
-
-  default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "my-s3-origin"
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  tags = {
-    Name = "My CloudFront Distribution"
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-}
-
-resource "aws_cloudfront_origin_access_identity" "my-oai" {
-  comment = "My Origin Access Identity"
-}
-
-resource "aws_s3_bucket_policy" "my-bucket-policy" {
-  bucket = aws_s3_bucket.my-bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Id      = "MyPolicy",
-    Statement = [
-      {
-        Sid       = "GrantCloudFrontAccess",
-        Effect    = "Allow",
-        Principal = {
-          AWS = aws_cloudfront_origin_access_identity.my-oai.iam_arn
-        },
-        Action    = "s3:GetObject",
-        Resource  = "${aws_s3_bucket.my-bucket.arn}/*"
-      }
-    ]
-  })
-}
-
-
-
-
-
+      - name: Unzip and Upload to S3
+        run: aws s3 sync FrontEnd s3://my-static-website-1996/
+        # run: |
+        #   unzip -q frontEnd.zip -d extracted_content
+        #   aws s3 sync extracted_content s3://my-static-website-1996/

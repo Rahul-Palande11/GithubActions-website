@@ -1,60 +1,7 @@
 locals {
-  github_token_url="https://token.actions.githubusercontent.com"
+  github_repo = "Rahul-Palande11/GithubActions-website"
 }
 
-data "tls_certificate" "example" {
- url = "https://token.actions.githubusercontent.com"
-}
-
-
-# To give existing policies
-resource "aws_iam_openid_connect_provider" "iam_oidc_connect_provider_data" {
- url = local.github_token_url
- client_id_list = ["sts.amazonaws.com"]
- thumbprint_list = [data.tls_certificate.example.certificates[0].sha1_fingerprint]
- 
-}
-#1
-# If want to create manual policy
-# data "aws_iam_role" "example" {
-#   name = "s3_full"
-# }
-# resource "aws_iam_role" "test_role" {
-#   name = "GitHub_role"
-
-#   assume_role_policy = jsonencode({
-#     "Version": "2012-10-17",
-#     "Statement": [
-#       {
-#         "Effect": "Allow",
-#         "Principal": {
-#           "Federated": "arn:aws:iam::528267078178:oidc-provider/token.actions.githubusercontent.com"
-#         },
-#         "Action": "sts:AssumeRoleWithWebIdentity",
-#         "Condition": {
-#           "StringEquals": {
-#             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-#             "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
-#           }
-#         }
-#       },
-#       {
-#         "Effect": "Allow",
-#         "Action": [
-#           "s3:*",
-#           "s3-object-lambda:*"
-#         ],
-#         "Resource": "*"
-#       }
-#     ]
-#   })
-
-#   tags = {
-#     "tag-key" = "GitHub"
-#   }
-# }
-
-# IAM role with Trust relationship
 resource "aws_iam_role" "test_role" {
   name = "GitHub_role"
 
@@ -70,7 +17,7 @@ resource "aws_iam_role" "test_role" {
         "Condition": {
           "StringEquals": {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub": "repo:Rahul-Palande11/GithubActions-website:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub": "repo:${local.github_repo}:ref:refs/heads/main"
           }
         }
       }
@@ -82,109 +29,63 @@ resource "aws_iam_role" "test_role" {
   }
 }
 
-# data "aws_iam_policy" "my-policy" {
-#   name = "AmazonS3FullAccess"
-# }
-
-# resource "aws_iam_role_policy" "test_role_policy" {
-#   name   = "AWSs3FullAccess"
-#   role   = aws_iam_role.test_role.id
-#  policy  = data.aws_iam_policy.my-policy
- 
-# }
-
-# data source using arn
-data "aws_iam_policy" "my-policy" {
-  arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+resource "aws_iam_policy" "test_policy" {
+  name        = "MyGitHubActionsPolicy"
+  description = "Policy for GitHub Actions"
+  policy      = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "AllowListBucket",
+        "Effect": "Allow",
+        "Action": "s3:ListBucket",
+        "Resource": "arn:aws:s3:::my-static-website-1996"
+      },
+      {
+        "Sid": "AllowGetObject",
+        "Effect": "Allow",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::my-static-website-1996/*"
+      },
+      {
+        "Sid": "AllowPutObject",
+        "Effect": "Allow",
+        "Action": "s3:PutObject",
+        "Resource": "arn:aws:s3:::my-static-website-1996/*"
+      },
+      {
+        "Sid": "ECSPermissions",
+        "Effect": "Allow",
+        "Action": [
+          "ecs:RunTask",
+          "ecs:StopTask"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "ECRPermissions",
+        "Effect": "Allow",
+        "Action": [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:GetRepositoryPolicy",
+          "ecr:DescribeRepositories",
+          "ecr:CreateRepository",
+          "ecr:DeleteRepository",
+          "ecr:PutImage"
+        ],
+        "Resource": "*"
+      }
+    ]
+  })
 }
 
-resource "aws_iam_policy_attachment" "test_role_attachment" {
-  name       = "AWSs3FullAccessAttachment"
-  roles      = [aws_iam_role.test_role.name]
-  policy_arn = data.aws_iam_policy.my-policy.arn
+resource "aws_iam_role_policy_attachment" "test_policy_attachment" {
+  policy_arn = aws_iam_policy.test_policy.arn
+  role       = aws_iam_role.test_role.name
 }
 
-# resource "aws_iam_role_policy" "test_policy" {
-#   name = "test_policy"
-#   role = aws_iam_role.test_role.id
-
-#   # Terraform's "jsonencode" function converts a
-#   # Terraform expression result to valid JSON syntax.
-#   policy = jsonencode({
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         # {
-#         #     "Action": [
-#         #         "s3:GetObject",
-#         #         "s3:PutObject",
-#         #         "s3:DeleteObject",
-#         #         "s3:ListBucket",
-#         #         "s3:ListBucketVersions"
-#         #     ],
-#         #     "Effect": "Allow",
-#         #     "Resource": "arn:aws:s3:::my-static-website-1996/*",
-#         #     "Sid": "S3Permissions"
-#         # },
-#       #   {
-#       #     "Effect": "Allow",
-#       #     "Action": [
-#       #         "s3:ListBucket"
-#       #     ],
-#       #     "Resource": [
-#       #         "arn:aws:s3:::my-static-website-1996"
-#       #     ]
-#       # },
-#       {
-#             "Sid": "AllowListBucket",
-#             "Effect": "Allow",
-#             "Action": "s3:ListBucket",
-#             "Resource": "arn:aws:s3:::my-static-website-1996"
-#         },
-#         {
-#             "Sid": "AllowGetObject",
-#             "Effect": "Allow",
-#             "Action": "s3:GetObject",
-#             "Resource": "arn:aws:s3:::my-static-website-1996/*"
-#         },
-#         {
-#             "Sid": "AllowPutObject",
-#             "Effect": "Allow",
-#             "Action": "s3:PutObject",
-#             "Resource": "arn:aws:s3:::my-static-website-1996/*"
-#         },
-#         {
-#             "Sid": "ECSPermissions",
-#             "Effect": "Allow",
-#             "Action": [
-#                 "ecs:RunTask",
-#                 "ecs:StopTask"
-#             ],
-#             "Resource": "*"
-#         },
-#         {
-#             "Sid": "ECRPermissions",
-#             "Effect": "Allow",
-#             "Action": [
-#                 "ecr:GetAuthorizationToken",
-#                 "ecr:BatchCheckLayerAvailability",
-#                 "ecr:GetDownloadUrlForLayer",
-#                 "ecr:GetRepositoryPolicy",
-#                 "ecr:DescribeRepositories",
-#                 "ecr:CreateRepository",
-#                 "ecr:DeleteRepository",
-#                 "ecr:PutImage"
-#             ],
-#             "Resource": "*"
-#         }
-#     ]
-# }
-# )
-# }
-
-
-
-
-# S3 Bucket
 resource "aws_s3_bucket" "my-bucket" {
   bucket = "my-static-website-1996"
 
@@ -194,7 +95,26 @@ resource "aws_s3_bucket" "my-bucket" {
   }
 }
 
-# CloudFront
+resource "aws_s3_bucket_policy" "my-bucket-policy" {
+  bucket = aws_s3_bucket.my-bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Id      = "MyPolicy",
+    Statement = [
+      {
+        Sid       = "GrantCloudFrontAccess",
+        Effect    = "Allow",
+        Principal = {
+          AWS = aws_iam_role.test_role.arn
+        },
+        Action    = "s3:GetObject",
+        Resource  = "${aws_s3_bucket.my-bucket.arn}/*"
+      }
+    ]
+  })
+}
+
 resource "aws_cloudfront_distribution" "my-cloudfront-distribution" {
   origin {
     domain_name = aws_s3_bucket.my-bucket.bucket_regional_domain_name
@@ -240,28 +160,3 @@ resource "aws_cloudfront_distribution" "my-cloudfront-distribution" {
 resource "aws_cloudfront_origin_access_identity" "my-oai" {
   comment = "My Origin Access Identity"
 }
-
-resource "aws_s3_bucket_policy" "my-bucket-policy" {
-  bucket = aws_s3_bucket.my-bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Id      = "MyPolicy",
-    Statement = [
-      {
-        Sid       = "GrantCloudFrontAccess",
-        Effect    = "Allow",
-        Principal = {
-          AWS = aws_cloudfront_origin_access_identity.my-oai.iam_arn
-        },
-        Action    = "s3:GetObject",
-        Resource  = "${aws_s3_bucket.my-bucket.arn}/*"
-      }
-    ]
-  })
-}
-
-
-
-
-
