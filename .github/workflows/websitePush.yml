@@ -55,9 +55,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHub_role
           aws-region: ap-south-1
-          # After changing 58th time
+          # After changing 57th time
 
 
       # - name: Download Artifact
