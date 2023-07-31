@@ -1,11 +1,9 @@
 name: Pushing website on S3
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        required: true
-        type: string
+   push:
+   branches:
+     - main 
 
 permissions:
   id-token: write
@@ -15,7 +13,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     steps:
       - name: Get Code
         uses: actions/checkout@v3
