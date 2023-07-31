@@ -11,9 +11,6 @@ permissions:
   id-token: write
   contents: read
   actions: read
-
-# env:
-#   AWS_REGION : ap-south-1
   
 jobs:
   deploy:
@@ -23,56 +20,12 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      # - name: Zipping
-      #   run: |
-      #     cd FrontEnd  
-      #     zip -r FrontEnd.zip ./*
-      #     mv FrontEnd.zip ../frontEnd.zip
-
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: frontEnd-zip
-      #     path: frontEnd.zip  
-
-      # - name: Configure AWS Credentials
-      #   run: |
-      #     mkdir -p $HOME/.aws
-      #     echo "[default]" >> $HOME/.aws/credentials
-      #     echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $HOME/.aws/credentials
-      #     echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $HOME/.aws/credentials
-      #     aws configure set default.region ap-south-1  
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     role-to-assume: arn:aws:iam::528267078178:role/s3_full
-      #     aws-region: ap-south-1
-      #     audience: sts.amazonaws.com
-      # - name: Assume IAM Role
-      #   # id: assume-role
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     role-to-assume: arn:aws:iam::528267078178:role/gitHub-Actions-Role
-      #     aws-region: ap-south-1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ VARS.AWS_REGION }}
-          # After changing 58th time
-
-
-      # - name: Download Artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: frontEnd-zip
 
       - name: Unzip and Upload to S3
         run: aws s3 sync FrontEnd s3://my-static-website-1996/
-        # run: |
-        #   unzip -q frontEnd.zip -d extracted_content
-        #   aws s3 sync extracted_content s3://my-static-website-1996/
+        
