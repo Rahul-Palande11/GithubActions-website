@@ -1,9 +1,11 @@
 name: Pushing website on S3
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -13,6 +15,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - name: Get Code
         uses: actions/checkout@v3
@@ -57,7 +60,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHub_role
           aws-region: ap-south-1
-          # After changing 33th time
+          # After changing 57th time
 
 
       # - name: Download Artifact
